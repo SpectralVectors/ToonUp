@@ -15,9 +15,9 @@ def toonup():
     object = bpy.context.object
     bpy.ops.object.shade_smooth()
 
-
     if object.type == 'MESH':
         
+        # Creating our Toon Shader Material
         toon_shader = bpy.data.materials.new(name='Toon Shader')
         toon_shader.use_nodes = True
         toon_shader.node_tree.nodes.clear()
@@ -42,7 +42,7 @@ def toonup():
         links.new(shader_to_rgb.outputs[0], color_ramp.inputs[0])
         links.new(diffuse.outputs[0], shader_to_rgb.inputs[0])
         
-
+        # Creating our Outline Material
         outline = bpy.data.materials.new(name='Outline')
         outline.use_nodes = True
         outline.use_backface_culling = True
@@ -61,6 +61,7 @@ def toonup():
         object.data.materials.append(toon_shader)
         object.data.materials.append(outline)
         
+        # Adding a solidify modifier
         bpy.ops.object.modifier_add(type='SOLIDIFY')
         solidify = object.modifiers['Solidify']
         solidify.use_flip_normals = True
