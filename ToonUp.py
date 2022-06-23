@@ -27,6 +27,10 @@ def toonup():
         output = nodes.new(type='ShaderNodeOutputMaterial')
         
         color_ramp = nodes.new(type='ShaderNodeValToRGB')
+        color_ramp.color_ramp.interpolation = 'CONSTANT'
+        color_ramp.color_ramp.elements[1].position = 0.9
+        color_ramp.color_ramp.elements.new(position = 0.2)
+        color_ramp.color_ramp.elements[1].color = (0.158747, 0.158747, 0.158747, 1)
         
         diffuse = nodes.new(type="ShaderNodeBsdfDiffuse")
 
@@ -38,11 +42,6 @@ def toonup():
         links.new(shader_to_rgb.outputs[0], color_ramp.inputs[0])
         links.new(diffuse.outputs[0], shader_to_rgb.inputs[0])
         
-        
-        color_ramp.color_ramp.interpolation = 'CONSTANT'
-        color_ramp.color_ramp.elements[1].position = 0.9
-        color_ramp.color_ramp.elements.new(position = 0.2)
-        color_ramp.color_ramp.elements[1].color = (0.158747, 0.158747, 0.158747, 1)
 
         outline = bpy.data.materials.new(name='Outline')
         outline.use_nodes = True
