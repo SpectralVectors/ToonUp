@@ -1,4 +1,4 @@
-![](/ToonUpScreenshot.png)
+![Screenshot](/ToonUpScreenshot.png)
 
 # ToonUp
 Blender Python - Adds toon shader and outline to selected object
