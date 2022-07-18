@@ -1,7 +1,7 @@
 bl_info = {
     "name": "ToonUp",
     "author": "SpectralVectors",
-    "version": (0, 0, 1),
+    "version": (0, 1, 2),
     "blender": (3, 0, 40),
     "location": "View 3D > Sidebar (N-Panel)",
     "description": "Toon shades and outlines the selected object",
@@ -11,7 +11,48 @@ bl_info = {
 
 import bpy
 
+class ToonUpProperties(bpy.types.PropertyGroup):
+
+    shadow_color : bpy.props.FloatVectorProperty(
+        name = 'Shadow',
+        default = (0, 0, 0, 1),
+        min = 0,
+        max = 1,
+        size = 4,
+        subtype = 'COLOR',
+    )
+
+    midtone_color : bpy.props.FloatVectorProperty(
+        name = 'Midtone',
+        default = (0.5, 0.5, 0.5, 1),
+        min = 0,
+        max = 1,
+        size = 4,
+        subtype = 'COLOR',
+    )    
+
+    highlight_color : bpy.props.FloatVectorProperty(
+        name = 'Highlight',
+        default = (0.9, 0.9, 0.9, 1),
+        min = 0,
+        max = 1,
+        size = 4,
+        subtype = 'COLOR',
+    )
+
+    outline_color : bpy.props.FloatVectorProperty(
+        name = 'Outline',
+        default = (0, 0, 0, 1),
+        min = 0,
+        max = 1,
+        size = 4,
+        subtype = 'COLOR',
+    )
+
 def toonup():
+
+    toonup_properties = bpy.context.scene.toonup_properties
+
     object = bpy.context.object
     bpy.ops.object.shade_smooth()
 
@@ -30,7 +71,9 @@ def toonup():
         color_ramp.color_ramp.interpolation = 'CONSTANT'
         color_ramp.color_ramp.elements[1].position = 0.9
         color_ramp.color_ramp.elements.new(position = 0.2)
-        color_ramp.color_ramp.elements[1].color = (0.158747, 0.158747, 0.158747, 1)
+        color_ramp.color_ramp.elements[0].color = toonup_properties.shadow_color
+        color_ramp.color_ramp.elements[1].color = toonup_properties.midtone_color
+        color_ramp.color_ramp.elements[2].color = toonup_properties.highlight_color
         
         diffuse = nodes.new(type="ShaderNodeBsdfDiffuse")
 
@@ -52,7 +95,8 @@ def toonup():
         
         output = nodes.new(type='ShaderNodeOutputMaterial')
         emission = nodes.new(type='ShaderNodeEmission')
-        emission.inputs[0].default_value = (0, 0, 0, 1)
+        # Outline Color
+        emission.inputs[0].default_value = toonup_properties.outline_color
         
         links = outline.node_tree.links
         
@@ -90,20 +134,32 @@ class ToonUpPanel(bpy.types.Panel):
 
     def draw(self, context):
 
+        toonup_properties = bpy.context.scene.toonup_properties
+
         layout = self.layout
 
-        row = layout.row()
-        row.operator('object.toonup_operator')
+        column = layout.column()
+        box = column.box()
+        box.prop(toonup_properties, 'highlight_color')
+        box.prop(toonup_properties, 'midtone_color')
+        box.prop(toonup_properties, 'shadow_color')
+        box.prop(toonup_properties, 'outline_color')
+        box = column.box()
+        box.label(text = 'Operator:')
+        box.operator('object.toonup_operator', text= 'Toon Up!')
 
 
 classes = [
 ToonUpPanel,
 ToonUpOperator,
+ToonUpProperties,
 ]
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    
+    bpy.types.Scene.toonup_properties = bpy.props.PointerProperty(type=ToonUpProperties)
 
 
 def unregister():
