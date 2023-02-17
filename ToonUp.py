@@ -106,8 +106,7 @@ def toonup():
         object.data.materials.append(outline)
         
         # Adding a solidify modifier
-        bpy.ops.object.modifier_add(type='SOLIDIFY')
-        solidify = object.modifiers['Solidify']
+        solidify = object.modifiers.new(name="ToonUp", type='SOLIDIFY')
         solidify.use_flip_normals = True
         solidify.material_offset = 1
 
